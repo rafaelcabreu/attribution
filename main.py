@@ -7,7 +7,7 @@ from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors
 
 def main(y, X, Z, uncorr, corr, init=1955, end=1995):
     """
-    Main method for using Ribes (2017) algorithm including
+    Main method for using Ribes et al. (2017) algorithm including
     observational and model error
 
     :param y: numpy.ndarray
