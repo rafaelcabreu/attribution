@@ -60,10 +60,16 @@ def chi2_test(d_cons, df):
 
 def project_vectors(nt, X):
     """
+    This function provides a projection matrix U that can be applied to X to ensure its covariance
+    matrix to be full-ranked. Projects to a nt-1 subspace (ref: Ribes et al., 2013).
 
-    :param nt:
-    :param X:
+    :param nt: int
+        number of time steps
+    :param X: numpy.ndarray
+        nt x nf array to be projected
     :return:
+    np.dot(U, X): numpy.ndarray
+        nt - 1 x nf array of projected timeseries
     """
     M = np.eye(nt, nt) - np.ones((nt, nt)) / nt
 
@@ -77,14 +83,23 @@ def project_vectors(nt, X):
 
 def SSM(exp, X_mm, init=1955, end=1995):
     """
+    Calculates the squared difference between each models ensemble mean and the multi-model mean.
+    Based on (Ribes et al., 2017)
 
-    :param exp:
-    :param X_mm:
-    :param init:
-    :param end:
+    :param exp: str
+        Experiment to calculate the difference (e.g., 'historical', 'historicalNat')
+    :param X_mm: numpy.ndarray
+        Array with multi-model ensemble mean
+    :param init: int
+        Correspondent year to start the analysis
+    :param end: int
+        Correspondent year to finish the analysis
     :return:
+    np.diag(((Xc - Xc_mm) ** 2.).sum(axis=1)): numpy.ndarray
+        nt -1 x nt - 1 array of the difference between each model ensemble mean the multi-model mean
     """
 
+    # reads ensemble mean for each model
     ifiles = glob('data/model/%s/ensmean/*_%s_%s.csv' % (exp, init, end))
 
     df = pd.DataFrame()
@@ -105,12 +120,20 @@ def SSM(exp, X_mm, init=1955, end=1995):
 
 def get_nruns(exp, how='pandas', init=1955, end=1995):
     """
+    Reads the number of runs for each model
 
-    :param exp:
-    :param how:
-    :param init:
-    :param end:
+    :param exp: str
+        Experiment to calculate the difference (e.g., 'historical', 'historicalNat')
+    :param how: str
+        Used to see if the number of runs is calculated using the pandas dataframes or text file ('historicalOA' for
+        example)
+    :param init: int
+        Correspondent year to start the analysis
+    :param end: int
+        Correspondent year to finish the analysis
     :return:
+    nruns: numpy.ndarray
+       Array with the number of runs for each model
     """
 
     if how == 'pandas':
@@ -129,15 +152,27 @@ def get_nruns(exp, how='pandas', init=1955, end=1995):
 
 def Cm_estimate(exp, Cv, X_mm, how_nr='pandas', init=1955, end=1995):
     """
+    Estimated covariance matrix for model error (Ribes et al., 2017)
 
-    :param exp:
-    :param Cv:
-    :param SSM:
-    :param nruns:
-    :param nm:
+    :param exp: str
+        Experiment to calculate the difference (e.g., 'historical', 'historicalNat')
+    :param Cv: numpy.ndarray
+        Array with internal variability covariance matrix
+    :param X_mm: numpy.ndarray
+        Array with multi-model ensemble mean
+    :param how_nr:
+        Used to see if the number of runs is calculated using the pandas dataframes or text file ('historicalOA' for
+        example)
+    :param init: int
+        Correspondent year to start the analysis
+    :param end: int
+        Correspondent year to finish the analysis
     :return:
+    Cm_pos_hat: numpy.ndarray
+        Estimated covariance matrix for model error
     """
 
+    # model difference
     _SSM = SSM(exp, X_mm, init=init, end=end)
 
     # nruns - number of runs / nm - number of models
@@ -148,6 +183,7 @@ def Cm_estimate(exp, Cv, X_mm, how_nr='pandas', init=1955, end=1995):
     for nr in nruns:
         Cv_all += Cv / nr
 
+    # first estimation of Cm
     Cm_hat = (1. / (nm - 1.)) * (_SSM - ((nm - 1.) / nm) * Cv_all)
 
     # set negative eigenvalues to zero and recompose the signal
@@ -160,6 +196,24 @@ def Cm_estimate(exp, Cv, X_mm, how_nr='pandas', init=1955, end=1995):
     return Cm_pos_hat
 
 def Cv_estimate(exp, Cv, how_nr='pandas', init=1955, end=1995):
+    """
+    Estimated covariance matrix for internal variability considering multiple models (Ribes et al., 2017)
+
+    :param exp: str
+        Experiment to calculate the difference (e.g., 'historical', 'historicalNat')
+    :param Cv: numpy.ndarray
+        Array with internal variability covariance matrix
+    :param how_nr:
+        Used to see if the number of runs is calculated using the pandas dataframes or text file ('historicalOA' for
+        example)
+    :param init: int
+        Correspondent year to start the analysis
+    :param end: int
+        Correspondent year to finish the analysis
+    :return:
+    Cv_estimate: numpy.ndarray
+        Estimated covariance matrix for internal variability considering multiple models
+    """
 
     # nruns - number of runs / nm - number of models
     nruns = get_nruns(exp, how=how_nr, init=init, end=end)

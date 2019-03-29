@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.stats as stats
 
-from preprocess import PreProcess
-from utils import chi2_test
+from .preprocess import PreProcess
+from .utils import chi2_test
 
 class AttributionModel():
     """

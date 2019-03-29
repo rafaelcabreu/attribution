@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils import speco
+from .utils import speco
 
 class PreProcess():
     """
