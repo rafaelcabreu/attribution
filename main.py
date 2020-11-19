@@ -3,7 +3,7 @@ import pandas as pd
 
 from model.lib.model import AttributionModel
 from model.lib.preprocess import PreProcess
-from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors
+from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors, unproject_vectors
 
 
 def main(y, X, Z, uncorr, corr, init=1955, end=1995):

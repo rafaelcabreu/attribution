@@ -87,6 +87,37 @@ def project_vectors(nt, X):
 #################################################################
 
 
+def unproject_vectors(nt, Xc, covariance=False):
+    """
+    This function provides unprojects a matrix nt subspace to we can compute the trends
+    :param nt: int
+        number of time steps
+    :param Xc: numpy.ndarray
+        nt x nf array to be unprojected
+    :param covariance: bool
+        if True the unproject by using the Ui * C * Uit transformation
+    :return:
+    np.dot(U, X): numpy.ndarray
+        nt - 1 x nf array of projected timeseries
+    """
+    M = np.eye(nt, nt) - np.ones((nt, nt)) / nt
+
+    # Eigen-vectors/-values of M; note that rk(M)=nt-1, so M has one eigenvalue equal to 0.
+    u, d = speco(M)
+
+    # inverse of the projection matrix
+    Ui = np.linalg.inv(u.T)[:, :nt - 1]
+
+    if covariance:
+        X = np.linalg.multi_dot([Ui, Xc, Ui.T])
+    else:
+        X = np.dot(Ui, Xc)
+
+    return X
+
+#################################################################
+
+
 def SSM(exp, X_mm, init=1955, end=1995):
     """
     Calculates the squared difference between each models ensemble mean and the multi-model mean. Based on
