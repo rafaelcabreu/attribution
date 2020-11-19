@@ -5,11 +5,10 @@ from model.lib.model import AttributionModel
 from model.lib.preprocess import PreProcess
 from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors
 
+
 def main(y, X, Z, uncorr, corr, init=1955, end=1995):
     """
-    Main method for using Ribes et al. (2017) algorithm including
-    observational and model error
-
+    Main method for using Ribes et al. (2017) algorithm including observational and model error
     :param y: numpy.ndarray
         Vector with nt observations
     :param X: numpy.ndarray
@@ -26,7 +25,6 @@ def main(y, X, Z, uncorr, corr, init=1955, end=1995):
         year to end the analysis
     :return:
     """
-
     # preprocess - all
     p = PreProcess(y, X, Z)
     Z1, Z2 = p.extract_Z2(frac=0.5)
@@ -61,6 +59,9 @@ def main(y, X, Z, uncorr, corr, init=1955, end=1995):
     y_star_hat, Xi_star_hat, Cy_star_hat, Cxi_star_hat = m.ribes(Cxi, Cy)
 
     return y_star_hat, Xi_star_hat, Cy_star_hat, Cxi_star_hat
+
+#################################################################
+
 
 if __name__ == "__main__":
 

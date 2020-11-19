@@ -6,7 +6,8 @@ import scipy.stats as stats
 from .preprocess import PreProcess
 from .utils import chi2_test
 
-class AttributionModel():
+
+class AttributionModel:
     """
     A class for attribution models. The OLS implementation is heavily based on Aurelien Ribes (CNRM-GAME) scilab code
     (see more in 'preprocess.py'). Also, Aurelien Ribes model proposed in 2017 is implemented following the reference:
@@ -41,19 +42,18 @@ class AttributionModel():
         following reference:
             Allen, Myles R., and Simon FB Tett (1999) Checking for model consistency in optimal fingerprinting.
             Climate Dynamics.
-
         :param Cf: numpy.ndarray
             Covariance matrix. Be sure that Cf is invertible to use this model (look at PreProcess class)
         :param Proj: numpy.ndarray
             Array of zeros and ones, indicating which forcings in each simulation
         :param Z2: numpy.ndarray
-            Array of size (nz1 x p) of control simulation used to compute consistensy test
+            Array of size (nz1 x p) of control simulation used to compute consistency test
         :param cons_test: str
             Which consistency test to be used
             - 'AT99' the formula provided by Allen & Tett (1999) (default)
         :return:
         Beta_hat: dict
-            Dictionary with estimation of beta_hat and the upper and lower condiference intervals
+            Dictionary with estimation of beta_hat and the upper and lower confidence intervals
         """
 
         # computes the covariance inverse
@@ -87,7 +87,9 @@ class AttributionModel():
 
         Beta_hat = {'beta_hat': beta_hat[0], 'beta_hat_inf': beta_hat_inf[0], 'beta_hat_sup': beta_hat_sup[0]}
         
-        return Beta_hat 
+        return Beta_hat
+
+    #################################################################
 
     def ribes(self, Cxi, Cy):
         """
@@ -110,8 +112,8 @@ class AttributionModel():
         X = self.X.sum(axis=1)
         Cx = Cxi.sum(axis=0)
 
-        # Estimate the true state of variables (y) and (Xi) y_star and X_star_i using the MLE
-        # y_star_hat and Xi_star_hat, respectively
+        # Estimate the true state of variables (y) and (Xi) y_star and X_star_i using the MLE y_star_hat and
+        # Xi_star_hat, respectively
         Xi_star_hat = np.zeros(self.X.shape)
         y_star_hat = self.y + np.linalg.multi_dot([Cy, np.linalg.inv(Cy + Cx), (X - self.y)])
         for i in range(Xi_star_hat.shape[1]):
@@ -148,6 +150,9 @@ class AttributionModel():
             print('%30s: %.7f (%.7f)' % ('Forcing no %d only' % (i+1), chi2_test(d_cons, self.nt), np.exp(d_cons / -2.)))
 
         return y_star_hat, Xi_star_hat, Cy_star_hat, Cxi_star_hat
+
+#################################################################
+
 
 if __name__ == "__main__":
 

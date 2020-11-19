@@ -2,7 +2,8 @@ import numpy as np
 
 from .utils import speco
 
-class PreProcess():
+
+class PreProcess:
     """
     A class to preprocess model data to be used in attribution methods like OLS, TLS and others. The script is
     heavily based on Aurelien Ribes (CNRM-GAME) scilab code, so for more information the user should consult the
@@ -42,6 +43,8 @@ class PreProcess():
 
         self.nt = y.shape[0]
 
+    #################################################################
+
     def extract_Z2(self, method='regular', frac=0.5):
         """
         This function is used to split a big sample Z (dimension: nz x p, containing nz iid realisation of a random
@@ -58,13 +61,12 @@ class PreProcess():
             Array of size (nz2 x p)
         """
         nz = self.Z.shape[1]
-        nz2 = int(nz * frac)
         ind_z2 = np.zeros(nz)
         
         if method == 'regular':
             # if frac = 0.5 ix would be [1, 3, 5, ..., ], so gets the index
             # for every two points
-            ix = np.arange(1 / frac - 1, nz, 1 / frac).astype(int) # -1 is because python starts index at 0
+            ix = np.arange(1 / frac - 1, nz, 1 / frac).astype(int)  # -1 is because python starts index at 0
             ind_z2[ix] = 1
             Z2 = self.Z[:, ind_z2 == 1]
             Z1 = self.Z[:, ind_z2 == 0]
@@ -72,6 +74,8 @@ class PreProcess():
             raise NotImplementedError('Method not implemented yet')
 
         return Z1, Z2
+
+    #################################################################
 
     def proj_fullrank(self, Z1, Z2):
         """
@@ -108,6 +112,8 @@ class PreProcess():
 
         return yc, Xc, Z1c, Z2c
 
+    #################################################################
+
     def creg(self, X, method='ledoit', alpha1=1e-10, alpha2=1):
         """
         This function compute the regularised covariance matrix estimate following the equation
@@ -132,12 +138,12 @@ class PreProcess():
         CE = np.dot(X.T, X) / n # sample covariance
         Ip = np.eye(p, p)
 
-        # method for the regularised covariance matrix estimate as introduced by Ledoit & Wolf (2004)
-        # more specificaly on pages 379-380
+        # method for the regularised covariance matrix estimate as introduced by Ledoit & Wolf (2004) more specifically
+        # on pages 379-380
         if method == 'ledoit':
-            m = np.trace(np.dot(CE, Ip)) / p # first estimate in L&W
+            m = np.trace(np.dot(CE, Ip)) / p  # first estimate in L&W
             XP = CE - m * Ip
-            d2 = np.trace(np.dot(XP, XP.T)) / p # second estimate in L&W
+            d2 = np.trace(np.dot(XP, XP.T)) / p  # second estimate in L&W
 
             bt = np.zeros(n)
 
@@ -147,17 +153,21 @@ class PreProcess():
                 bt[i] = np.trace(np.dot((Mi - CE), (Mi - CE).T)) / p
             
             bb2 = (1. / n ** 2.) * bt.sum()    
-            b2 = min(bb2, d2) # third estimate in L&W
-            a2 = d2 - b2 # fourth estimate in L&W
+            b2 = min(bb2, d2)  # third estimate in L&W
+            a2 = d2 - b2  # fourth estimate in L&W
 
             alpha1 = (b2 * m / d2)
             alpha2 = (a2 / d2)
-        elif (method != 'specified'):
+
+        elif method != 'specified':
             raise NotImplementedError('Method not implemented yet')
 
         Cr = alpha1 * Ip + alpha2 * CE
 
         return Cr
+
+    #################################################################
+
 
 if __name__ == "__main__":
 
