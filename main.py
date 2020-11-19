@@ -3,7 +3,8 @@ import pandas as pd
 
 from model.lib.model import AttributionModel
 from model.lib.preprocess import PreProcess
-from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors, unproject_vectors
+from model.lib.trend import all_trends
+from model.lib.utils import Cv_estimate, Cm_estimate, project_vectors
 
 
 def main(y, X, Z, uncorr, corr, init=1955, end=1995):
@@ -88,8 +89,10 @@ if __name__ == "__main__":
     df_Z = pd.read_csv('data/model/historical/ensemble/CESM-LE_historical_1955_1995.csv', index_col=0, parse_dates=True)
     Z = df_Z.values
 
+    # get estimated values
+    y_star_hat, Xi_star_hat, Cy_star_hat, Cxi_star_hat = main(y, X, Z, Z_uncorr, Z_corr, init=1955, end=1995)
 
-    main(y, X, Z, Z_uncorr, Z_corr, init=1955, end=1995)
-
+    # calculate trends
+    trends = all_trends(y_star_hat, Xi_star_hat, Cy_star_hat, Cxi_star_hat)
 
 

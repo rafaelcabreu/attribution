@@ -87,15 +87,13 @@ def project_vectors(nt, X):
 #################################################################
 
 
-def unproject_vectors(nt, Xc, covariance=False):
+def unproject_vectors(nt, Xc):
     """
     This function provides unprojects a matrix nt subspace to we can compute the trends
     :param nt: int
         number of time steps
     :param Xc: numpy.ndarray
         nt x nf array to be unprojected
-    :param covariance: bool
-        if True the unproject by using the Ui * C * Uit transformation
     :return:
     np.dot(U, X): numpy.ndarray
         nt - 1 x nf array of projected timeseries
@@ -108,12 +106,7 @@ def unproject_vectors(nt, Xc, covariance=False):
     # inverse of the projection matrix
     Ui = np.linalg.inv(u.T)[:, :nt - 1]
 
-    if covariance:
-        X = np.linalg.multi_dot([Ui, Xc, Ui.T])
-    else:
-        X = np.dot(Ui, Xc)
-
-    return X
+    return np.dot(Ui, Xc)
 
 #################################################################
 
